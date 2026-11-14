@@ -1,0 +1,66 @@
+# Cache, logs & sessions
+/var/*
+!/var/cache
+/var/cache/*
+!var/cache/.gitkeep
+!/var/logs
+/var/logs/*
+!var/logs/.gitkeep
+!/var/sessions
+/var/sessions/*
+!var/sessions/.gitkeep
+/bin/*
+!/bin/console
+.php-cs-fixer.php
+.php-cs-fixer.cache
+.phpunit.result.cache
+phpunit.xml
+compose.override.yaml
+
+# Parameters
+/app/config/parameters.yml
+
+# Managed by Composer
+/vendor/
+
+# Assets and user uploads
+web/uploads/
+/web/bundles/*
+!/web/bundles/.gitkeep
+/web/assets/images/*
+!web/assets/images/.gitkeep
+/web/build/*
+
+# Build
+/app/build
+/build
+/coverage
+
+# Development
+docker/php/env
+docker/php/blackfire
+
+# Composer PHAR
+/composer.phar
+
+# Data for universalreading
+data/db/universalreading*.sqlite
+data/db/universalreading*.sqlite-journal
+
+# assets stuff
+node_modules/
+bin
+package-lock.json
+
+# Test-generated files
+admin-export.json
+specialexport.json
+/data/site-credentials-secret-key.txt
+
+# Custom CSS file
+web/custom.css
+
+.env.local
+.env.test.local
+
+yarn-error.log

@@ -1,0 +1,214 @@
+# Redis stuff
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    # readability
+    universalreading.queue.redis.readability:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.readability"
+
+    universalreading.producer.redis.readability:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.readability"
+
+    universalreading.consumer.redis.readability:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ReadabilityImport'
+
+    # instapaper
+    universalreading.queue.redis.instapaper:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.instapaper"
+
+    universalreading.producer.redis.instapaper:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.instapaper"
+
+    universalreading.consumer.redis.instapaper:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\InstapaperImport'
+
+    # pinboard
+    universalreading.queue.redis.pinboard:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.pinboard"
+
+    universalreading.producer.redis.pinboard:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.pinboard"
+
+    universalreading.consumer.redis.pinboard:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\PinboardImport'
+
+    # delicious
+    universalreading.queue.redis.delicious:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.delicious"
+
+    universalreading.producer.redis.delicious:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.delicious"
+
+    universalreading.consumer.redis.delicious:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\DeliciousImport'
+
+    # Omnivore
+    universalreading.queue.redis.omnivore:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.omnivore"
+
+    universalreading.producer.redis.omnivore:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.omnivore"
+
+    universalreading.consumer.redis.omnivore:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\OmnivoreImport'
+
+    # universalreading v1
+    universalreading.queue.redis.universalreading_v1:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.universalreading_v1"
+
+    universalreading.producer.redis.universalreading_v1:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.universalreading_v1"
+
+    universalreading.consumer.redis.universalreading_v1:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\UniversalReadingV1Import'
+
+    # universalreading v2
+    universalreading.queue.redis.universalreading_v2:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.universalreading_v2"
+
+    universalreading.producer.redis.universalreading_v2:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.universalreading_v2"
+
+    universalreading.consumer.redis.universalreading_v2:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\UniversalReadingV2Import'
+
+    # elcurator
+    universalreading.queue.redis.elcurator:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.elcurator"
+
+    universalreading.producer.redis.elcurator:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.elcurator"
+
+    universalreading.consumer.redis.elcurator:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ElcuratorImport'
+
+    # firefox
+    universalreading.queue.redis.firefox:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.firefox"
+
+    universalreading.producer.redis.firefox:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.firefox"
+
+    universalreading.consumer.redis.firefox:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\FirefoxImport'
+
+    # chrome
+    universalreading.queue.redis.chrome:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.chrome"
+
+    universalreading.producer.redis.chrome:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.chrome"
+
+    universalreading.consumer.redis.chrome:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ChromeImport'
+
+    # shaarli
+    universalreading.queue.redis.shaarli:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.shaarli"
+
+    universalreading.producer.redis.shaarli:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.shaarli"
+
+    universalreading.consumer.redis.shaarli:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ShaarliImport'
+
+    # pocket html
+    universalreading.queue.redis.pocket_html:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.pocket_html"
+
+    universalreading.producer.redis.pocket_html:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.pocket_html"
+
+    universalreading.consumer.redis.pocket_html:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\PocketHtmlImport'
+
+    # pocket csv
+    universalreading.queue.redis.pocket_csv:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.pocket_csv"
+
+    universalreading.producer.redis.pocket_csv:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.pocket_csv"
+
+    universalreading.consumer.redis.pocket_csv:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\PocketCsvImport'

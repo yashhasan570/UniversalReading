@@ -1,0 +1,345 @@
+imports:
+    - { resource: services_rabbit.yml }
+    - { resource: services_redis.yml }
+    - { resource: parameters_addons.yml }
+
+parameters:
+    spiriit_form_filter.get_filter.doctrine_orm.class: Universal Reading\Event\Subscriber\CustomDoctrineORMSubscriber
+    env(UNIVERSALREADING_LOG_LEVEL): error
+    env(UNIVERSALREADING_SITE_CONFIG_FOLDERS): ''
+    env(UNIVERSALREADING_COMPROMISED_PASSWORD_CHECK_ENABLED): '0'
+    universalreading.site_config_folders: '%env(csv:UNIVERSALREADING_SITE_CONFIG_FOLDERS)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+        bind:
+            $projectDir: '%kernel.project_dir%'
+            $debug: '%kernel.debug%'
+            $environment: '%kernel.environment%'
+            $defaultLocale: '%env(DEFAULT_LOCALE)%'
+            $articleReportingUrl: '%universalreading.article_reporting_url%'
+            $universalreadingUrl: '%env(UNIVERSALREADING_BASE_URL)%'
+            $tablePrefix: '%env(UNIVERSALREADING_TABLE_PREFIX)%'
+            $encryptionKeyPath: "%universalreading.site_credentials.encryption_key_path%"
+            $fetchingErrorMessageTitle: "%universalreading.fetching_error_message_title%"
+            $fetchingErrorMessage: '%universalreading.fetching_error_message%'
+            $version: "%universalreading.version%"
+            $paypalUrl: "%universalreading.paypal_url%"
+            $languages: '%universalreading.languages%'
+            $feedLimit: "%universalreading.feed_limit%"
+            $apiLimitMassActions: "%universalreading.api_limit_mass_actions%"
+            $allowMimetypes: "%universalreading.allow_mimetypes%"
+            $resourceDir: "%universalreading.resource_dir%"
+            $lifeTime: '%universalreading.cache_lifetime%'
+            $logoPath: 'web/img/appicon/apple-touch-icon-152.png'
+            $registrationEnabled: '%env(bool:UNIVERSALREADING_REGISTRATION_ENABLED)%'
+            $captchaEnabled: '%env(bool:UNIVERSALREADING_CAPTCHA_ENABLED)%'
+            $restrictedAccess: '@=service(''craue_config'').get(''restricted_access'')'
+            $senderEmail: "%scheb_two_factor.email.sender_email%"
+            $senderName: "%scheb_two_factor.email.sender_name%"
+            $storeArticleHeaders: '@=service(''craue_config'').get(''store_article_headers'')'
+            $supportUrl: '@=service(''craue_config'').get(''universalreading_support_url'')'
+            $fonts: '%universalreading.fonts%'
+            $defaultIgnoreOriginInstanceRules: '%universalreading.default_ignore_origin_instance_rules%'
+            $defaultUserAgent: '%env(UNIVERSALREADING_USER_AGENT)%'
+            $addonsUrl: "%addons_url%"
+
+    Universal Reading\:
+        resource: '../../src/*'
+        exclude: ['../../src/{Consumer,Controller,Entity,DataFixtures,Redis}', '../../src/Event/*Event.php']
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    Universal Reading\Controller\:
+        resource: '../../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    # inject alias service into controllers
+    Universal Reading\Controller\Import\ChromeController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_chrome_producer'
+            $redisProducer: '@universalreading.producer.redis.chrome'
+
+    Universal Reading\Controller\Import\DeliciousController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_delicious_producer'
+            $redisProducer: '@universalreading.producer.redis.delicious'
+
+    Universal Reading\Controller\Import\ElcuratorController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_elcurator_producer'
+            $redisProducer: '@universalreading.producer.redis.elcurator'
+
+    Universal Reading\Controller\Import\OmnivoreController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_omnivore_producer'
+            $redisProducer: '@universalreading.producer.redis.omnivore'
+
+    Universal Reading\Controller\Import\FirefoxController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_firefox_producer'
+            $redisProducer: '@universalreading.producer.redis.firefox'
+
+    Universal Reading\Controller\Import\InstapaperController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_instapaper_producer'
+            $redisProducer: '@universalreading.producer.redis.instapaper'
+
+    Universal Reading\Controller\Import\PinboardController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_pinboard_producer'
+            $redisProducer: '@universalreading.producer.redis.pinboard'
+
+    Universal Reading\Controller\Import\ReadabilityController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_readability_producer'
+            $redisProducer: '@universalreading.producer.redis.readability'
+
+    Universal Reading\Controller\Import\UniversalReadingV1Controller:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_universalreading_v1_producer'
+            $redisProducer: '@universalreading.producer.redis.universalreading_v1'
+
+    Universal Reading\Controller\Import\UniversalReadingV2Controller:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_universalreading_v2_producer'
+            $redisProducer: '@universalreading.producer.redis.universalreading_v2'
+
+    Universal Reading\Controller\Import\ShaarliController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_shaarli_producer'
+            $redisProducer: '@universalreading.producer.redis.shaarli'
+
+    Universal Reading\Controller\Import\PocketHtmlController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_pocket_html_producer'
+            $redisProducer: '@universalreading.producer.redis.pocket_html'
+
+    Universal Reading\Controller\Import\PocketCsvController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_pocket_csv_producer'
+            $redisProducer: '@universalreading.producer.redis.pocket_csv'
+
+    Universal Reading\Doctrine\MigrationFactoryDecorator:
+        decorates: doctrine.migrations.migrations_factory
+
+    Doctrine\DBAL\Connection:
+        alias: doctrine.dbal.default_connection
+
+    Doctrine\ORM\EntityManagerInterface:
+        alias: doctrine.orm.entity_manager
+
+    Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration:
+        alias: doctrine.migrations.storage.table_storage
+
+    Doctrine\Persistence\ManagerRegistry:
+        alias: doctrine
+
+    Craue\ConfigBundle\Util\Config:
+        alias: craue_config
+
+    JMS\Serializer\SerializerInterface:
+        alias: jms_serializer
+
+    Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdaterInterface:
+        alias: spiriit_form_filter.query_builder_updater
+
+    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface:
+        alias: scheb_two_factor.security.google_authenticator
+
+    Symfony\Component\HttpFoundation\Session\SessionInterface:
+        alias: session
+
+    Symfony\Component\EventDispatcher\EventDispatcherInterface:
+        alias: event_dispatcher
+
+    Symfony\Component\Form\FormFactoryInterface:
+        alias: form.factory
+
+    Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface:
+        alias: security.token_storage
+
+    Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface:
+        alias: security.authorization_checker
+
+    Symfony\Component\Translation\TranslatorInterface:
+        alias: translator
+
+    Symfony\Component\Validator\Validator\ValidatorInterface:
+        alias: validator
+
+    FOS\UserBundle\Model\UserManagerInterface:
+        alias: fos_user.user_manager
+
+    MatomoTwigExtension\MatomoTwigExtension:
+        public: false
+
+    ScssPhp\ScssPhp\Compiler:
+        public: false
+
+    Universal Reading\Event\Listener\UserLocaleListener:
+        tags:
+            - { name: kernel.event_listener, event: security.interactive_login, method: onInteractiveLogin }
+
+    Universal Reading\ParamConverter\UsernameFeedTokenConverter:
+        tags:
+            - { name: request.param_converter, converter: username_feed_token_converter }
+
+    Universal Reading\Event\Subscriber\TablePrefixSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    Universal Reading\Event\Subscriber\SchemaAdapterSubscriber:
+        arguments:
+            $databaseTablePrefix: '%env(UNIVERSALREADING_TABLE_PREFIX)%'
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    psr18.universalreading.client:
+        class: Symfony\Component\HttpClient\Psr18Client
+        arguments:
+            $client: '@Universal Reading\HttpClient\Universal ReadingClient'
+
+    Graby\Graby:
+        arguments:
+            $config:
+                error_message: '%universalreading.fetching_error_message%'
+                error_message_title: '%universalreading.fetching_error_message_title%'
+                http_client:
+                    ua_browser: '%env(UNIVERSALREADING_USER_AGENT)%'
+            $client: '@psr18.universalreading.client'
+        calls:
+            - [ setLogger, [ "@logger" ] ]
+        tags:
+            - { name: monolog.logger, channel: graby }
+
+    Graby\SiteConfig\ConfigBuilder:
+        arguments:
+            $config: "@=parameter('universalreading.site_config_folders') and parameter('universalreading.site_config_folders')[0] ? {'site_config': parameter('universalreading.site_config_folders')} : {}"
+
+    Universal Reading\SiteConfig\GrabySiteConfigBuilder:
+        tags:
+            - { name: monolog.logger, channel: graby }
+
+    # service alias override
+    Universal Reading\SiteConfig\SiteConfigBuilder:
+        alias: Universal Reading\SiteConfig\GrabySiteConfigBuilder
+
+    Symfony\Component\BrowserKit\HttpBrowser:
+        arguments:
+            $client: '@browser.client'
+
+    RulerZ\RulerZ:
+        alias: rulerz
+
+    Universal Reading\Operator\PHP\Matches:
+        tags:
+            - { name: rulerz.operator, target: native, operator: matches }
+
+    Universal Reading\Operator\PHP\NotMatches:
+        tags:
+            - { name: rulerz.operator, target: native, operator: notmatches }
+
+    Universal Reading\Operator\PHP\PatternMatches:
+        tags:
+            - { name: rulerz.operator, target: native, operator: "~" }
+
+    Predis\Client:
+        arguments:
+            $parameters: '%env(REDIS_URL)%'
+
+    Universal Reading\Event\Subscriber\SQLiteCascadeDeleteSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    Universal Reading\Event\Subscriber\DownloadImagesSubscriber:
+        arguments:
+            $enabled: '@=service(''craue_config'').get(''download_images_enabled'')'
+
+    Universal Reading\Helper\DownloadImages:
+        arguments:
+            $baseFolder: "%kernel.project_dir%/web/assets/images"
+
+    Universal Reading\Command\InstallCommand:
+        arguments:
+            $defaultSettings: '%universalreading.default_internal_settings%'
+            $defaultIgnoreOriginInstanceRules: '%universalreading.default_ignore_origin_instance_rules%'
+
+    Universal Reading\Event\Listener\CreateConfigListener:
+        arguments:
+            $itemsOnPage: "%universalreading.items_on_page%"
+            $feedLimit: "%universalreading.feed_limit%"
+            $language: '%env(DEFAULT_LOCALE)%'
+            $readingSpeed: "%universalreading.reading_speed%"
+            $actionMarkAsRead: "%universalreading.action_mark_as_read%"
+            $listMode: "%universalreading.list_mode%"
+            $displayThumbnails: "%universalreading.display_thumbnails%"
+
+    Universal Reading\Event\Listener\AuthenticationFailureListener:
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.failure, method: onAuthenticationFailure }
+
+    Universal Reading\Import\UniversalReadingV1Import:
+        tags:
+            -  { name: universalreading.import, alias: universalreading_v1 }
+
+    Universal Reading\Import\UniversalReadingV2Import:
+        tags:
+            -  { name: universalreading.import, alias: universalreading_v2 }
+
+    Universal Reading\Import\ElcuratorImport:
+        tags:
+            -  { name: universalreading.import, alias: elcurator }
+
+    Universal Reading\Import\ReadabilityImport:
+        tags:
+            -  { name: universalreading.import, alias: readability }
+
+    Universal Reading\Import\InstapaperImport:
+        tags:
+            -  { name: universalreading.import, alias: instapaper }
+
+    Universal Reading\Import\PinboardImport:
+        tags:
+            -  { name: universalreading.import, alias: pinboard }
+
+    Universal Reading\Import\DeliciousImport:
+        tags:
+            -  { name: universalreading.import, alias: delicious }
+
+    Universal Reading\Import\OmnivoreImport:
+        tags:
+            -  { name: universalreading.import, alias: omnivore }
+
+    Universal Reading\Import\FirefoxImport:
+        tags:
+            -  { name: universalreading.import, alias: firefox }
+
+    Universal Reading\Import\ChromeImport:
+        tags:
+            -  { name: universalreading.import, alias: chrome }
+
+    Universal Reading\Import\ShaarliImport:
+        tags:
+            -  { name: universalreading.import, alias: shaarli }
+
+    Universal Reading\Import\PocketHtmlImport:
+        tags:
+            -  { name: universalreading.import, alias: pocket_html }
+
+    Universal Reading\Import\PocketCsvImport:
+        tags:
+            -  { name: universalreading.import, alias: pocket_csv }
+
+    # to factorize the proximity and bypass translation for prev & next
+    pagerfanta.view.default_universalreading:
+        class: Pagerfanta\View\OptionableView
+        arguments:
+            - '@pagerfanta.view.twitter_bootstrap'
+            - { proximity: 1, prev_message: "<", next_message: ">" }
+        public: false
+        tags:
+            - { name: pagerfanta.view, alias: default_universalreading }

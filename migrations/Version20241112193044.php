@@ -1,0 +1,22 @@
+<?php
+
+namespace Application\Migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Universal Reading\Doctrine\UniversalReadingMigration;
+
+/**
+ * Added the internal setting to export articles in markdown.
+ */
+final class Version20241112193044 extends UniversalReadingMigration
+{
+    public function up(Schema $schema): void
+    {
+        $this->addSql('INSERT INTO ' . $this->getTable('internal_setting') . " (name, value, section) VALUES ('export_md', '1', 'export');");
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('DELETE FROM' . $this->getTable('internal_setting') . " WHERE name = 'export_md';");
+    }
+}

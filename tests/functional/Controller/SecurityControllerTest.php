@@ -1,0 +1,109 @@
+<?php
+
+namespace Universal Reading\Tests\Functional\Controller;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Universal Reading\Entity\User;
+use Universal Reading\Tests\Functional\UniversalReadingTestCase;
+
+class SecurityControllerTest extends UniversalReadingTestCase
+{
+    public function testLoginWithEmail(): void
+    {
+        $this->logInAsUsingHttp('bigboss@universalreading.org');
+        $client = $this->getTestClient();
+        $client->followRedirects();
+
+        $crawler = $client->request('GET', '/config');
+        $this->assertStringContainsString('config.form_feed.description', $crawler->filter('body')->extract(['_text'])[0]);
+    }
+
+    public function testLoginWithout2Factor(): void
+    {
+        $this->logInAs('admin');
+        $client = $this->getTestClient();
+        $client->followRedirects();
+
+        $crawler = $client->request('GET', '/config');
+        $this->assertStringContainsString('config.form_feed.description', $crawler->filter('body')->extract(['_text'])[0]);
+    }
+
+    public function testLoginWith2FactorEmail(): void
+    {
+        $client = $this->getTestClient();
+
+        $client->followRedirects();
+
+        $em = $client->getContainer()->get(EntityManagerInterface::class);
+        $user = $em
+            ->getRepository(User::class)
+            ->findOneByUsername('admin');
+        $user->setEmailTwoFactor(true);
+        $em->persist($user);
+        $em->flush();
+
+        $this->logInAsUsingHttp('admin');
+        $crawler = $client->request('GET', '/config');
+        $this->assertStringContainsString('trusted', $crawler->filter('body')->extract(['_text'])[0]);
+
+        // restore user
+        $user = $em
+            ->getRepository(User::class)
+            ->findOneByUsername('admin');
+        $user->setEmailTwoFactor(false);
+        $em->persist($user);
+        $em->flush();
+    }
+
+    public function testLoginWith2FactorGoogle(): void
+    {
+        $client = $this->getTestClient();
+
+        $client->followRedirects();
+
+        $em = $client->getContainer()->get(EntityManagerInterface::class);
+        $user = $em
+            ->getRepository(User::class)
+            ->findOneByUsername('admin');
+        $user->setGoogleAuthenticatorSecret('26LDIHYGHNELOQEM');
+        $user->setGoogleAuthenticator(true);
+        $em->persist($user);
+        $em->flush();
+
+        $this->logInAsUsingHttp('admin');
+        $crawler = $client->request('GET', '/config');
+        $this->assertStringContainsString('trusted', $crawler->filter('body')->extract(['_text'])[0]);
+
+        // restore user
+        $user = $em
+            ->getRepository(User::class)
+            ->findOneByUsername('admin');
+        $user->setGoogleAuthenticatorSecret(null);
+        $user->setGoogleAuthenticator(false);
+        $em->persist($user);
+        $em->flush();
+    }
+
+    public function testEnabledRegistration(): void
+    {
+        $client = $this->getTestClient();
+        $registrationEnabled = filter_var($_ENV['UNIVERSALREADING_REGISTRATION_ENABLED'] ?? '0', \FILTER_VALIDATE_BOOL);
+
+        if (!$registrationEnabled) {
+            $this->markTestSkipped('fosuser_registration is not enabled.');
+        }
+
+        $client->followRedirects();
+        $client->request('GET', '/register');
+        $this->assertStringContainsString('registration.submit', $client->getResponse()->getContent());
+    }
+
+    public function testRegistrationDoesNotRenderCaptchaWhenDisabled(): void
+    {
+        $client = $this->getTestClient();
+
+        $crawler = $client->request('GET', '/register/');
+
+        $this->assertCount(0, $crawler->filter('input[name="fos_user_registration[captcha]"]'));
+    }
+}

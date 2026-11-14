@@ -1,0 +1,88 @@
+# RabbitMQ stuff
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    Universal Reading\Consumer\RabbitMQConsumerTotalProxy:
+        lazy: true
+        arguments:
+            $readabilityConsumer: '@old_sound_rabbit_mq.import_readability_consumer'
+            $universalreadingV1Consumer: '@old_sound_rabbit_mq.import_universalreading_v1_consumer'
+            $universalreadingV2Consumer: '@old_sound_rabbit_mq.import_universalreading_v2_consumer'
+            $firefoxConsumer: '@old_sound_rabbit_mq.import_firefox_consumer'
+            $chromeConsumer: '@old_sound_rabbit_mq.import_chrome_consumer'
+            $instapaperConsumer: '@old_sound_rabbit_mq.import_instapaper_consumer'
+            $pinboardConsumer: '@old_sound_rabbit_mq.import_pinboard_consumer'
+            $deliciousConsumer: '@old_sound_rabbit_mq.import_delicious_consumer'
+            $elcuratorConsumer: '@old_sound_rabbit_mq.import_elcurator_consumer'
+            $shaarliConsumer: '@old_sound_rabbit_mq.import_shaarli_consumer'
+            $pocketHtmlConsumer: '@old_sound_rabbit_mq.import_pocket_html_consumer'
+            $pocketCsvConsumer: '@old_sound_rabbit_mq.import_pocket_csv_consumer'
+            $omnivoreConsumer: '@old_sound_rabbit_mq.import_omnivore_consumer'
+
+    universalreading.consumer.amqp.readability:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ReadabilityImport'
+
+    universalreading.consumer.amqp.instapaper:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\InstapaperImport'
+
+    universalreading.consumer.amqp.pinboard:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\PinboardImport'
+
+    universalreading.consumer.amqp.delicious:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\DeliciousImport'
+
+    universalreading.consumer.amqp.omnivore:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\OmnivoreImport'
+
+    universalreading.consumer.amqp.universalreading_v1:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\UniversalReadingV1Import'
+
+    universalreading.consumer.amqp.universalreading_v2:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\UniversalReadingV2Import'
+
+    universalreading.consumer.amqp.elcurator:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ElcuratorImport'
+
+    universalreading.consumer.amqp.firefox:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\FirefoxImport'
+
+    universalreading.consumer.amqp.chrome:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ChromeImport'
+
+    universalreading.consumer.amqp.shaarli:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\ShaarliImport'
+
+    universalreading.consumer.amqp.pocket_html:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\PocketHtmlImport'
+
+    universalreading.consumer.amqp.pocket_csv:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\PocketCsvImport'

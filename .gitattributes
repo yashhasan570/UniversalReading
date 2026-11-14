@@ -1,0 +1,16 @@
+/.editorconfig export-ignore
+/.gitattributes export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml.dist export-ignore
+/tests export-ignore
+
+# According to .editorconfig
+* text eol=lf
+
+# mark binaries to avoid corruption
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary

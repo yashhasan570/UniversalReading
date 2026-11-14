@@ -1,0 +1,86 @@
+<?php
+
+namespace Universal Reading\Controller\Import;
+
+use Craue\ConfigBundle\Util\Config;
+use OldSound\RabbitMqBundle\RabbitMq\Producer as RabbitMqProducer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Universal Reading\Controller\AbstractController;
+use Universal Reading\Form\Type\UploadImportType;
+use Universal Reading\Import\InstapaperImport;
+use Universal Reading\Redis\Producer as RedisProducer;
+
+class InstapaperController extends AbstractController
+{
+    public function __construct(
+        private readonly RabbitMqProducer $rabbitMqProducer,
+        private readonly RedisProducer $redisProducer,
+        private readonly array $allowMimetypes,
+        private readonly string $resourceDir,
+    ) {
+    }
+
+    #[Route(path: '/import/instapaper', name: 'import_instapaper', methods: ['GET', 'POST'])]
+    #[IsGranted('IMPORT_ENTRIES')]
+    public function indexAction(Request $request, InstapaperImport $instapaper, Config $craueConfig, TranslatorInterface $translator)
+    {
+        $form = $this->createForm(UploadImportType::class);
+        $form->handleRequest($request);
+
+        $instapaper->setUser($this->getUser());
+
+        if ($craueConfig->get('import_with_rabbitmq')) {
+            $instapaper->setProducer($this->rabbitMqProducer);
+        } elseif ($craueConfig->get('import_with_redis')) {
+            $instapaper->setProducer($this->redisProducer);
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('file')->getData();
+            $markAsRead = $form->get('mark_as_read')->getData();
+            $name = bin2hex(random_bytes(16)) . '.csv';
+
+            if (null !== $file && \in_array($file->getClientMimeType(), $this->allowMimetypes, true) && $file->move($this->resourceDir, $name)) {
+                try {
+                    $res = $instapaper
+                        ->setFilepath($this->resourceDir . '/' . $name)
+                        ->setMarkAsRead($markAsRead)
+                        ->import();
+                } finally {
+                    // never leave the uploaded file on disk, whatever the import result is
+                    @unlink($this->resourceDir . '/' . $name);
+                }
+
+                $message = 'flashes.import.notice.failed';
+
+                if (true === $res) {
+                    $summary = $instapaper->getSummary();
+                    $message = $translator->trans('flashes.import.notice.summary', [
+                        '%imported%' => $summary['imported'],
+                        '%skipped%' => $summary['skipped'],
+                    ]);
+
+                    if (0 < $summary['queued']) {
+                        $message = $translator->trans('flashes.import.notice.summary_with_queue', [
+                            '%queued%' => $summary['queued'],
+                        ]);
+                    }
+                }
+
+                $this->addFlash('notice', $message);
+
+                return $this->redirectToDefaultHomepage();
+            }
+
+            $this->addFlash('notice', 'flashes.import.notice.failed_on_file');
+        }
+
+        return $this->render('Import/Instapaper/index.html.twig', [
+            'form' => $form->createView(),
+            'import' => $instapaper,
+        ]);
+    }
+}

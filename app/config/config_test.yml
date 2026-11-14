@@ -1,0 +1,39 @@
+imports:
+    - { resource: config_dev.yml }
+    - { resource: services_test.yml }
+
+framework:
+    test: ~
+    session:
+        storage_factory_id: session.storage.factory.mock_file
+    profiler:
+        collect: false
+    translator:
+        enabled: false
+    mailer:
+        dsn: 'null://null'
+
+web_profiler:
+    toolbar: false
+    intercept_redirects: false
+
+doctrine:
+    dbal:
+        use_savepoints: true
+
+    orm:
+        metadata_cache_driver:
+            type: service
+            id: filesystem_cache
+        query_cache_driver:
+            type: service
+            id: filesystem_cache
+
+dama_doctrine_test:
+    enable_static_connection: true
+    enable_static_meta_data_cache: true
+    enable_static_query_cache: true
+
+twig:
+    debug: true
+    strict_variables: true

@@ -1,0 +1,258 @@
+<?php
+
+namespace Universal Reading\Tests\Unit\Import;
+
+use Doctrine\ORM\EntityManager;
+use M6Web\Component\RedisMock\RedisMockFactory;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
+use Predis\Client;
+use Simpleue\Queue\RedisQueue;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Universal Reading\Entity\Entry;
+use Universal Reading\Entity\User;
+use Universal Reading\Helper\ContentProxy;
+use Universal Reading\Helper\TagsAssigner;
+use Universal Reading\Import\ShaarliImport;
+use Universal Reading\Redis\Producer;
+use Universal Reading\Repository\EntryRepository;
+
+class ShaarliImportTest extends TestCase
+{
+    protected $user;
+    protected $em;
+    protected $logHandler;
+    protected $contentProxy;
+    protected $tagsAssigner;
+
+    public function testInit(): void
+    {
+        $shaarliImport = $this->getShaarliImport();
+
+        $this->assertSame('Shaarli', $shaarliImport->getName());
+        $this->assertNotEmpty($shaarliImport->getUrl());
+        $this->assertSame('import.shaarli.description', $shaarliImport->getDescription());
+    }
+
+    public function testImport(): void
+    {
+        $shaarliImport = $this->getShaarliImport(false, 2);
+        $shaarliImport->setFilepath(__DIR__ . '/../../fixtures/Import/shaarli-bookmarks.html');
+
+        $entryRepo = $this->getMockBuilder(EntryRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $entryRepo->expects($this->exactly(2))
+            ->method('findByUrlAndUserId')
+            ->willReturn(false);
+
+        $this->em
+            ->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($entryRepo);
+
+        $entry = $this->getMockBuilder(Entry::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $titles = [];
+        $this->contentProxy
+            ->expects($this->exactly(2))
+            ->method('updateEntry')
+            ->willReturnCallback(static function ($entry, $url, array $content) use (&$titles): void {
+                $titles[] = $content['title'];
+            });
+
+        $res = $shaarliImport->import();
+
+        $this->assertTrue($res);
+        $this->assertSame(['skipped' => 0, 'imported' => 2, 'queued' => 0], $shaarliImport->getSummary());
+        $this->assertSame([
+            'The Legacy of Firefox OS. In the two years or so since Mozilla… | by Ben Francis | Medium',
+            'JO Paris 2024 : Où courir dans la capitale maintenant que les quais sont fermés ?',
+        ], $titles);
+    }
+
+    public function testImportAndMarkAllAsRead(): void
+    {
+        $shaarliImport = $this->getShaarliImport(false, 1);
+        $shaarliImport->setFilepath(__DIR__ . '/../../fixtures/Import/shaarli-bookmarks.html');
+
+        $entryRepo = $this->getMockBuilder(EntryRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $entryRepo->expects($this->exactly(2))
+            ->method('findByUrlAndUserId')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $this->em
+            ->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($entryRepo);
+
+        $this->contentProxy
+            ->expects($this->exactly(1))
+            ->method('updateEntry');
+
+        // check that every entry persisted are archived
+        $this->em
+            ->expects($this->any())
+            ->method('persist')
+            ->with($this->callback(static fn ($persistedEntry) => (bool) $persistedEntry->isArchived()));
+
+        $res = $shaarliImport
+            ->setMarkAsRead(true)
+            ->import();
+
+        $this->assertTrue($res);
+
+        $this->assertSame(['skipped' => 1, 'imported' => 1, 'queued' => 0], $shaarliImport->getSummary());
+    }
+
+    public function testImportWithRabbit(): void
+    {
+        $shaarliImport = $this->getShaarliImport();
+        $shaarliImport->setFilepath(__DIR__ . '/../../fixtures/Import/shaarli-bookmarks.html');
+
+        $entryRepo = $this->getMockBuilder(EntryRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $entryRepo->expects($this->never())
+            ->method('findByUrlAndUserId');
+
+        $this->em
+            ->expects($this->never())
+            ->method('getRepository');
+
+        $entry = $this->getMockBuilder(Entry::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->contentProxy
+            ->expects($this->never())
+            ->method('updateEntry');
+
+        $producer = $this->getMockBuilder(\OldSound\RabbitMqBundle\RabbitMq\Producer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $producer
+            ->expects($this->exactly(2))
+            ->method('publish');
+
+        $shaarliImport->setProducer($producer);
+
+        $res = $shaarliImport->setMarkAsRead(true)->import();
+
+        $this->assertTrue($res);
+        $this->assertSame(['skipped' => 0, 'imported' => 0, 'queued' => 2], $shaarliImport->getSummary());
+    }
+
+    public function testImportWithRedis(): void
+    {
+        $shaarliImport = $this->getShaarliImport();
+        $shaarliImport->setFilepath(__DIR__ . '/../../fixtures/Import/shaarli-bookmarks.html');
+
+        $entryRepo = $this->getMockBuilder(EntryRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $entryRepo->expects($this->never())
+            ->method('findByUrlAndUserId');
+
+        $this->em
+            ->expects($this->never())
+            ->method('getRepository');
+
+        $entry = $this->getMockBuilder(Entry::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->contentProxy
+            ->expects($this->never())
+            ->method('updateEntry');
+
+        $factory = new RedisMockFactory();
+        $redisMock = $factory->getAdapter(Client::class, true);
+
+        $queue = new RedisQueue($redisMock, 'shaarli');
+        $producer = new Producer($queue);
+
+        $shaarliImport->setProducer($producer);
+
+        $res = $shaarliImport->setMarkAsRead(true)->import();
+
+        $this->assertTrue($res);
+        $this->assertSame(['skipped' => 0, 'imported' => 0, 'queued' => 2], $shaarliImport->getSummary());
+
+        $this->assertNotEmpty($redisMock->lpop('shaarli'));
+    }
+
+    public function testImportBadFile(): void
+    {
+        $shaarliImport = $this->getShaarliImport();
+        $shaarliImport->setFilepath(__DIR__ . '/../../fixtures/Import/universalreading-v1.jsonx');
+
+        $res = $shaarliImport->import();
+
+        $this->assertFalse($res);
+
+        $records = $this->logHandler->getRecords();
+        $this->assertStringContainsString('Universal Reading HTML Import: unable to read file', $records[0]['message']);
+        $this->assertSame('ERROR', $records[0]['level_name']);
+    }
+
+    public function testImportUserNotDefined(): void
+    {
+        $shaarliImport = $this->getShaarliImport(true);
+        $shaarliImport->setFilepath(__DIR__ . '/../../fixtures/Import/shaarli-bookmarks.html');
+
+        $res = $shaarliImport->import();
+
+        $this->assertFalse($res);
+
+        $records = $this->logHandler->getRecords();
+        $this->assertStringContainsString('Universal Reading HTML Import: user is not defined', $records[0]['message']);
+        $this->assertSame('ERROR', $records[0]['level_name']);
+    }
+
+    private function getShaarliImport($unsetUser = false, $dispatched = 0)
+    {
+        $this->user = new User();
+
+        $this->em = $this->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->contentProxy = $this->getMockBuilder(ContentProxy::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->tagsAssigner = $this->getMockBuilder(TagsAssigner::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dispatcher = $this->getMockBuilder(EventDispatcher::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dispatcher
+            ->expects($this->exactly($dispatched))
+            ->method('dispatch');
+
+        $this->logHandler = new TestHandler();
+        $logger = new Logger('test', [$this->logHandler]);
+
+        $universalreading = new ShaarliImport($this->em, $this->contentProxy, $this->tagsAssigner, $dispatcher, $logger);
+
+        if (false === $unsetUser) {
+            $universalreading->setUser($this->user);
+        }
+
+        return $universalreading;
+    }
+}

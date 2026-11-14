@@ -1,0 +1,10 @@
+auth_code:
+    mailer:
+        body:
+            signature: Tim universalreading
+            support: 'Silakan hubungi kami jika Anda memiliki sebuah masalah:'
+            second_para: 'Ini kodenya:'
+            hello: Hai %user%,
+            first_para: Anda memerlukan autentikasi dua faktor untuk masuk ke akun universalreading, dan perangkat baru baru saja menggunakannya, kami mengirimkan kode untuk memvalidasi koneksinya.
+        subject: kode otentikasi universalreading
+    on: on

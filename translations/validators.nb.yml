@@ -1,0 +1,10 @@
+validator:
+    password_must_match: Passordfeltene må samsvare.
+    password_too_short: Passordet ditt må være minst åtte tegn.
+    password_wrong_value: Feil nåværende passord angitt.
+    item_per_page_too_high: Dette vil drepe programmet
+    feed_limit_too_high: Dette vil drepe programmet
+    quote_length_too_high: Sitatet er for langt. De kan være {{ limit }} tegn eller mindre.
+    item_per_page_too_low: Denne verdien må være større enn eller lik 1.
+    feed_limit_too_low: Denne verdien må være større enn eller lik 1.
+    captcha_invalid: Sikkerhetskoden er ugyldig eller har utløpt. Vennligst prøv igjen.

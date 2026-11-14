@@ -1,0 +1,123 @@
+<?php
+
+namespace Universal Reading\Controller\Api;
+
+use Craue\ConfigBundle\Util\Config;
+use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Operation;
+use OpenApi\Annotations as OA;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Universal Reading\Entity\Api\ApplicationInfo;
+use Universal Reading\Entity\User;
+
+class UniversalReadingRestController extends AbstractFOSRestController
+{
+    public function __construct(
+        protected EntityManagerInterface $entityManager,
+        protected SerializerInterface $serializer,
+        protected AuthorizationCheckerInterface $authorizationChecker,
+        protected TokenStorageInterface $tokenStorage,
+        protected TranslatorInterface $translator,
+        protected bool $registrationEnabled,
+        protected string $version,
+        protected int $apiLimitMassActions,
+        protected string $fetchingErrorMessage,
+    ) {
+    }
+
+    /**
+     * Retrieve version number.
+     *
+     * @Operation(
+     *     tags={"Information"},
+     *     summary="Retrieve version number.",
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returned when successful",
+     *         @OA\JsonContent(
+     *             description="Version number of the application.",
+     *             type="string",
+     *             example="2.5.2",
+     *         )
+     *     )
+     * )
+     *
+     * @deprecated Should use info endpoint instead
+     *
+     * @return JsonResponse
+     */
+    #[Route(path: '/api/version.{_format}', name: 'api_get_version', methods: ['GET'], defaults: ['_format' => 'json'])]
+    public function getVersionAction()
+    {
+        $json = $this->serializer->serialize($this->version, 'json');
+
+        return (new JsonResponse())->setJson($json);
+    }
+
+    /**
+     * @Operation(
+     *     tags={"Information"},
+     *     summary="Retrieve information about the running universalreading application.",
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returned when successful",
+     *         @Model(type=ApplicationInfo::class),
+     *     )
+     * )
+     *
+     * @return JsonResponse
+     */
+    #[Route(path: '/api/info.{_format}', name: 'api_get_info', methods: ['GET'], defaults: ['_format' => 'json'])]
+    public function getInfoAction(Config $craueConfig)
+    {
+        $info = new ApplicationInfo(
+            $this->version,
+            $this->registrationEnabled && $craueConfig->get('api_user_registration'),
+        );
+
+        return (new JsonResponse())->setJson($this->serializer->serialize($info, 'json'));
+    }
+
+    protected function validateAuthentication(): void
+    {
+        if (false === $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
+            throw new AccessDeniedException();
+        }
+    }
+
+    /**
+     * Shortcut to send data serialized in json.
+     *
+     * @return JsonResponse
+     */
+    protected function sendResponse($data)
+    {
+        // https://github.com/schmittjoh/JMSSerializerBundle/issues/293
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+
+        $json = $this->serializer->serialize($data, 'json', $context);
+
+        return (new JsonResponse())->setJson($json);
+    }
+
+    /**
+     * @return User|null
+     */
+    protected function getUser()
+    {
+        $user = parent::getUser();
+        \assert(null === $user || $user instanceof User);
+
+        return $user;
+    }
+}
