@@ -5,7 +5,6 @@
 
 [![CI](https://github.com/universalreading/universalreading/actions/workflows/continuous-integration.yml/badge.svg?branch=master)](https://github.com/universalreading/universalreading/actions/workflows/continuous-integration.yml?query=branch%3Amaster)
 [![Matrix](https://matrix.to/img/matrix-badge.svg)](https://matrix.to/#/#universalreading:matrix.org)
-[![Donation Status](https://img.shields.io/liberapay/goal/universalreading.svg?logo=liberapay)](https://liberapay.com/universalreading/donate)
 [![Translation status](https://hosted.weblate.org/widgets/universalreading/-/svg-badge.svg)](https://hosted.weblate.org/engage/universalreading/?utm_source=widget)
 ![License](https://img.shields.io/github/license/universalreading/universalreading)
 
@@ -60,12 +59,12 @@ To learn more about developing universalreading, please refer to the [contributi
 
 Content extraction relies on [Graby](https://github.com/j0k3r/graby), [php-readability](https://github.com/j0k3r/php-readability) and [ftr-site-config](https://github.com/fivefilters/ftr-site-config).
 
-## Sponsors
-
-<img src="https://api.blackfire.io/blackfire-logo.png" alt="Blackfire" width="200" />
-
 ## License
 Copyright © 2013-current Nicolas Lœuillet <nicolas@loeuillet.org>
 
 This work is free. You can redistribute it and/or modify it under the
 terms of the MIT License. See the [COPYING.md](./COPYING.md) file for more details.
+
+## Contact
+
+Questions, problem reports or feedback? Reach us on Telegram: [@johnconstantine570](https://t.me/johnconstantine570)
