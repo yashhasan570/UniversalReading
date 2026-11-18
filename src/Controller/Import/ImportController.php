@@ -59,6 +59,7 @@ class ImportController extends AbstractController
                     + $this->rabbitMQConsumerTotalProxy->getTotalMessage('pocket_html')
                     + $this->rabbitMQConsumerTotalProxy->getTotalMessage('pocket_csv')
                     + $this->rabbitMQConsumerTotalProxy->getTotalMessage('omnivore')
+                    + $this->rabbitMQConsumerTotalProxy->getTotalMessage('url_list')
                 ;
             } catch (\Exception) {
                 $rabbitNotInstalled = true;
@@ -78,6 +79,7 @@ class ImportController extends AbstractController
                     + $this->redisClient->llen('universalreading.import.pocket_html')
                     + $this->redisClient->llen('universalreading.import.pocket_csv')
                     + $this->redisClient->llen('universalreading.import.omnivore')
+                    + $this->redisClient->llen('universalreading.import.url_list')
                 ;
             } catch (\Exception) {
                 $redisNotInstalled = true;

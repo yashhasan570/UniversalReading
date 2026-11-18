@@ -25,6 +25,7 @@ class UploadedFileCleanupTest extends UniversalReadingTestCase
             'pocket_html' => ['/import/pocket_html', 'test.html'],
             'readability' => ['/import/readability', 'test.txt'],
             'shaarli' => ['/import/shaarli', 'test.html'],
+            'url_list' => ['/import/url_list', 'test.txt'],
             'universalreading_v1' => ['/import/universalreading-v1', 'test.txt'],
             'universalreading_v2' => ['/import/universalreading-v2', 'test.txt'],
         ];

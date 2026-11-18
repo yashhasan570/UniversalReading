@@ -212,3 +212,19 @@ services:
         class: Universal Reading\Consumer\RedisEntryConsumer
         arguments:
             $import: '@Universal Reading\Import\PocketCsvImport'
+
+    # url list
+    universalreading.queue.redis.url_list:
+        class: Simpleue\Queue\RedisQueue
+        arguments:
+            $queueName: "universalreading.import.url_list"
+
+    universalreading.producer.redis.url_list:
+        class: Universal Reading\Redis\Producer
+        arguments:
+            - "@universalreading.queue.redis.url_list"
+
+    universalreading.consumer.redis.url_list:
+        class: Universal Reading\Consumer\RedisEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\UrlListImport'

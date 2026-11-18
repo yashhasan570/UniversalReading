@@ -12,6 +12,7 @@ In universalreading 2.x, you can import data from:
 -   [elCurator]({{< relref "Elcurator.md" >}})
 -   [universalreading 1.x]({{< relref "universalreadingv1.md" >}})
 -   [universalreading 2.x]({{< relref "universalreadingv2.md" >}})
+-   [a list of URLs]({{< relref "UrlList.md" >}})
 
 We also developed [a script to execute migrations via command-line
 interface](#import-via-command-line-interface-cli).

@@ -54,7 +54,7 @@ Execute this command to download and extract the latest package:
 wget https://wllbg.org/latest-v2-package && tar xvf latest-v2-package
 ```
 
-You will find the [md5 hash of the latest package on our website](https://universalreading.org/en#download).
+You will find the [md5 hash of the latest package on our website](https://universalreading.org/#download).
 
 The static package requires each command to be appended by `--env=prod` as the static package is only usable as a prod environment (dev environment is not supported and won't work at all).
 
@@ -139,6 +139,24 @@ to your own AWS/GCP account. The deploy link pre-fills the universalreading Dock
 image (`universalreading/universalreading`) with port `80` already set.
 
 [![Deploy to ZopDay](https://zop.dev/deploytozopday-inkhard.svg)](https://zop.dev/zopday/app/deploy?image=universalreading/universalreading&port=80&name=universalreading&utm_source=github&utm_medium=one_click&utm_content=universalreading)
+
+## Installation on Simafri
+
+Simafri has a step-by-step guide for running the official universalreading Docker
+image on its managed VPS, with MariaDB, Redis and HTTPS through a reverse
+proxy, from the first login to backups and upgrades. You keep root access to
+the server, while Simafri handles its system updates, monitoring and
+encrypted nightly backups kept off the machine.
+
+[Install universalreading on Simafri](https://www.simafri.com/en/guides/self-host-universalreading/)
+
+## Installation on Podway
+
+Podway runs universalreading on its own small machine with a PostgreSQL 16
+database, HTTPS, and an optional custom domain. It creates the
+`universalreading` user with a generated password and turns sign-ups off.
+
+[Install universalreading on Podway](https://podway.io/start?app=universalreading&ref=docs-universalreading)
 
 ## Installation on Synology
 

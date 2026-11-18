@@ -21,6 +21,7 @@ services:
             $pocketHtmlConsumer: '@old_sound_rabbit_mq.import_pocket_html_consumer'
             $pocketCsvConsumer: '@old_sound_rabbit_mq.import_pocket_csv_consumer'
             $omnivoreConsumer: '@old_sound_rabbit_mq.import_omnivore_consumer'
+            $urlListConsumer: '@old_sound_rabbit_mq.import_url_list_consumer'
 
     universalreading.consumer.amqp.readability:
         class: Universal Reading\Consumer\AMQPEntryConsumer
@@ -86,3 +87,8 @@ services:
         class: Universal Reading\Consumer\AMQPEntryConsumer
         arguments:
             $import: '@Universal Reading\Import\PocketCsvImport'
+
+    universalreading.consumer.amqp.url_list:
+        class: Universal Reading\Consumer\AMQPEntryConsumer
+        arguments:
+            $import: '@Universal Reading\Import\UrlListImport'

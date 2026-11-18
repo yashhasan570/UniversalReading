@@ -123,6 +123,11 @@ services:
             $rabbitMqProducer: '@old_sound_rabbit_mq.import_pocket_csv_producer'
             $redisProducer: '@universalreading.producer.redis.pocket_csv'
 
+    Universal Reading\Controller\Import\UrlListController:
+        arguments:
+            $rabbitMqProducer: '@old_sound_rabbit_mq.import_url_list_producer'
+            $redisProducer: '@universalreading.producer.redis.url_list'
+
     Universal Reading\Doctrine\MigrationFactoryDecorator:
         decorates: doctrine.migrations.migrations_factory
 
@@ -333,6 +338,10 @@ services:
     Universal Reading\Import\PocketCsvImport:
         tags:
             -  { name: universalreading.import, alias: pocket_csv }
+
+    Universal Reading\Import\UrlListImport:
+        tags:
+            -  { name: universalreading.import, alias: url_list }
 
     # to factorize the proximity and bypass translation for prev & next
     pagerfanta.view.default_universalreading:

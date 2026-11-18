@@ -8,9 +8,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
 use Universal Reading\Entity\Entry;
 use Universal Reading\Entity\User;
-use Universal Reading\Repository\AnnotationRepository;
 use Universal Reading\Repository\EntryRepository;
-use Universal Reading\Repository\TagRepository;
 use Universal Reading\Twig\Universal ReadingExtension;
 
 class Universal ReadingExtensionTest extends TestCase
@@ -93,14 +91,6 @@ class Universal ReadingExtensionTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $annotationRepository = $this->getMockBuilder(AnnotationRepository::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $tagRepository = $this->getMockBuilder(TagRepository::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $tokenStorage = $this->getMockBuilder(TokenStorageInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -109,6 +99,6 @@ class Universal ReadingExtensionTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        return new Universal ReadingExtension($entryRepository, $annotationRepository, $tagRepository, $tokenStorage, 0, $translator, '', $articleReportingUrl);
+        return new Universal ReadingExtension($entryRepository, $tokenStorage, 0, $translator, '', $articleReportingUrl);
     }
 }
