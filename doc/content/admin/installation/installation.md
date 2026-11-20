@@ -158,6 +158,13 @@ database, HTTPS, and an optional custom domain. It creates the
 
 [Install universalreading on Podway](https://podway.io/start?app=universalreading&ref=docs-universalreading)
 
+## Installation on PikaPods
+
+PikaPods provides managed universalreading hosting with tested automatic updates and
+free SSL on your own domain.
+
+[![Run on PikaPods](https://www.pikapods.com/static/run-button.svg)](https://www.pikapods.com/apps/universalreading)
+
 ## Installation on Synology
 
 The SynoCommunity provides a package to install universalreading on your Synology NAS.
