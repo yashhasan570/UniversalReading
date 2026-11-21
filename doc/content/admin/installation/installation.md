@@ -90,7 +90,14 @@ docker run \
 
 The default username and password are `universalreading:universalreading`. For more information, see [universalreading on Docker Hub](https://hub.docker.com/r/universalreading/universalreading/).
 
-## Installation on Cloudron
+## Third-party installation options
+
+The universalreading development team does not endorse or recommend any of the third-party
+providers listed below. This list is provided for information only, to help you
+find available options for installing universalreading. Inclusion does not imply a
+partnership with universalreading.
+
+### Cloudron
 
 Cloudron provides an easy way to install webapps on your server with a
 focus on sysadmin automation and keeping apps updated. universalreading is
@@ -99,7 +106,7 @@ store.
 
 [Install universalreading on your Cloudron](https://cloudron.io/store/org.universalreading.cloudronapp2.html)
 
-## Installation on YunoHost
+### YunoHost
 
 YunoHost provides an easy way to install webapps on your server with a
 focus on sysadmin automation and keeping apps updated. universalreading is
@@ -108,14 +115,14 @@ official repository.
 
 [![Install universalreading with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=universalreading2)
 
-## Installation on alwaysdata
+### alwaysdata
 
 alwaysdata's Marketplace allows to easily install universalreading (and many other
 applications) on a Public or Private Cloud.
 
 [Install universalreading on alwaysdata](https://www.alwaysdata.com/en/marketplace/universalreading/)
 
-## Installation on Pethost
+### Pethost
 
 Pethost has a one-click template that runs the universalreading Docker image with
 a persistent volume and HTTPS. It asks for a password and creates the
@@ -123,7 +130,7 @@ a persistent volume and HTTPS. It asks for a password and creates the
 
 [Install universalreading on Pethost](https://pethost.dev/templates/universalreading/)
 
-## Installation on Hostim
+### Hostim
 
 Hostim has a one-click template that runs the universalreading Docker image with a
 managed PostgreSQL database, a persistent volume for downloaded images, and
@@ -132,7 +139,7 @@ sign-ups off.
 
 [Install universalreading on Hostim](https://hostim.dev/docs/templates/universalreading/)
 
-## Installation on ZopDay
+### ZopDay
 
 ZopDay lets you deploy Docker-based applications to managed infrastructure or
 to your own AWS/GCP account. The deploy link pre-fills the universalreading Docker
@@ -140,7 +147,7 @@ image (`universalreading/universalreading`) with port `80` already set.
 
 [![Deploy to ZopDay](https://zop.dev/deploytozopday-inkhard.svg)](https://zop.dev/zopday/app/deploy?image=universalreading/universalreading&port=80&name=universalreading&utm_source=github&utm_medium=one_click&utm_content=universalreading)
 
-## Installation on Simafri
+### Simafri
 
 Simafri has a step-by-step guide for running the official universalreading Docker
 image on its managed VPS, with MariaDB, Redis and HTTPS through a reverse
@@ -150,7 +157,7 @@ encrypted nightly backups kept off the machine.
 
 [Install universalreading on Simafri](https://www.simafri.com/en/guides/self-host-universalreading/)
 
-## Installation on Podway
+### Podway
 
 Podway runs universalreading on its own small machine with a PostgreSQL 16
 database, HTTPS, and an optional custom domain. It creates the
@@ -158,14 +165,14 @@ database, HTTPS, and an optional custom domain. It creates the
 
 [Install universalreading on Podway](https://podway.io/start?app=universalreading&ref=docs-universalreading)
 
-## Installation on PikaPods
+### PikaPods
 
 PikaPods provides managed universalreading hosting with tested automatic updates and
 free SSL on your own domain.
 
 [![Run on PikaPods](https://www.pikapods.com/static/run-button.svg)](https://www.pikapods.com/apps/universalreading)
 
-## Installation on Synology
+### Synology
 
 The SynoCommunity provides a package to install universalreading on your Synology NAS.
 
